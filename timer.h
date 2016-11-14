@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
-#include "rbtree.h"
 
 typedef void (*timer_cb)(void*);
 

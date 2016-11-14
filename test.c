@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "rbtree.h"
 #include "timer.h"
 
 #define MAX_NUM 65536
@@ -49,6 +50,7 @@ void roc_timer_work(void *arg)
         free(data->ctx);
         data->ctx = NULL;
     }
+    timer_remove(&handle->root, &data->node);
     return;
 }
 
@@ -63,12 +65,13 @@ int main(int argc, char *argv[])
 
     for(loop = 0; loop < MAX_NUM; loop ++)
     {
-        timer_set_expire(&data[loop].node, time(NULL) + TIMEOUT);
-        timer_insert(&handle.root, &data[loop].node);
-        data[loop].node.cb = roc_timer_work;
-        data[loop].node.data = (void*)&data[loop];
         data[loop].ctx = (void*)strdup("12345678");
         data[loop].slot = loop;
+
+        data[loop].node.cb = roc_timer_work;
+        data[loop].node.data = (void*)&data[loop];
+        timer_set_expire(&data[loop].node, time(NULL) + TIMEOUT);
+        timer_insert(&handle.root, &data[loop].node);
 
         sleep(1);
     }

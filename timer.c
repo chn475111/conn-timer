@@ -1,3 +1,4 @@
+#include "rbtree.h"
 #include "timer.h"
 
 int timer_init(timer_root_t *root)
@@ -116,7 +117,9 @@ void timer_beat(timer_root_t *root, time_t now)
             break;
         }
 
-        timer_remove(root, pos);            //删除超时
+    #ifdef _DEBUG
+        fprintf(stdout, "expire - %ld: %s", pos->expire, ctime(&pos->expire));
+    #endif
         pos->cb(pos->data);                 //执行回调
     }
 }
