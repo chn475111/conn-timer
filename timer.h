@@ -1,5 +1,5 @@
 /**
- * @author lijk@.infosec.com.cn
+ * @author lijk@infosec.com.cn
  * @version 0.0.1
  * @date 2016-10-11 16:12:45
  */
@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <sys/time.h>
 
 typedef void (*timer_cb)(void*);
 
@@ -23,7 +24,7 @@ typedef struct timer_root_s
 typedef struct timer_node_s
 {
     struct rb_node rbnode;
-    time_t expire;          //计时器到期时间点(红黑树键值)
+    long long expire;       //计时器到期时间点(红黑树键值)
     bool trigger;           //计时器插入状态 true: 已插入; false: 未插入
 
     timer_cb cb;            //工作回调函数
@@ -34,19 +35,19 @@ int timer_init(timer_root_t *root);
 
 int timer_insert(timer_root_t *root, timer_node_t *node);
 
-timer_node_t* timer_search(timer_root_t *root, time_t expire);
+timer_node_t* timer_search(timer_root_t *root, long long expire);
 
-void timer_erase(timer_root_t *root, time_t expire);
+void timer_erase(timer_root_t *root, long long expire);
 
 int timer_remove(timer_root_t *root, timer_node_t *node);
 
-int timer_set_expire(timer_node_t *node, time_t expire);
+int timer_set_expire(timer_node_t *node, long long expire);
 
-time_t timer_get_expire(timer_node_t *node);
+long long timer_get_expire(timer_node_t *node);
 
 int timer_sum(timer_root_t *root);
 
-void timer_beat(timer_root_t *root, time_t now);
+void timer_beat(timer_root_t *root, long long now);
 
 void timer_dump(timer_root_t *root);
 

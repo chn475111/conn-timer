@@ -54,8 +54,26 @@ void roc_timer_work(void *arg)
     return;
 }
 
+typedef struct data_s
+{
+    int len;
+    char *val;
+}data_t;
+
 int main(int argc, char *argv[])
 {
+
+    data_t *data1 = (data_t*)malloc(sizeof(data_t));
+    if(data1 == NULL)
+        return -1;
+    memset(data1, 0, sizeof(data_t));
+
+    data1->len = 8;
+    data1->val = strdup("12345678");
+
+    char **p = &data1->val;
+    data_t *d = container_of(p, data_t, val);
+
     int loop;
     roc_root_t handle;
     roc_node_t *data = handle.data;

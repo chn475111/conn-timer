@@ -18,7 +18,7 @@ int timer_insert(timer_root_t *root, timer_node_t *node)
     while(*rbnode)
     {
         timer_node_t *pos = rb_entry(*rbnode, timer_node_t, rbnode);
-        time_t result = node->expire - pos->expire;
+        long long result = node->expire - pos->expire;
 
         parent = *rbnode;
         if (result < 0)
@@ -36,7 +36,7 @@ int timer_insert(timer_root_t *root, timer_node_t *node)
     return 1;
 }
 
-timer_node_t* timer_search(timer_root_t *root, time_t expire)
+timer_node_t* timer_search(timer_root_t *root, long long expire)
 {
     if(root == NULL) return NULL;
 
@@ -44,7 +44,7 @@ timer_node_t* timer_search(timer_root_t *root, time_t expire)
     while(rbnode)
     {
         timer_node_t *pos = rb_entry(rbnode, timer_node_t, rbnode);
-        time_t result = expire - pos->expire;
+        long long result = expire - pos->expire;
 
         if (result < 0)
             rbnode = rbnode->rb_left;
@@ -56,7 +56,7 @@ timer_node_t* timer_search(timer_root_t *root, time_t expire)
     return NULL;
 }
 
-void timer_erase(timer_root_t *root, time_t expire)
+void timer_erase(timer_root_t *root, long long expire)
 {
     if(root == NULL) return;
 
@@ -81,14 +81,14 @@ int timer_remove(timer_root_t *root, timer_node_t *node)
     return 1;
 }
 
-int timer_set_expire(timer_node_t *node, time_t expire)
+int timer_set_expire(timer_node_t *node, long long expire)
 {
     if(node == NULL) return 0;
     node->expire = expire;
     return 1;
 }
 
-time_t timer_get_expire(timer_node_t *node)
+long long timer_get_expire(timer_node_t *node)
 {
     if(node == NULL) return 0;
     return node->expire;
@@ -100,7 +100,7 @@ int timer_sum(timer_root_t *root)
     return root->sum;
 }
 
-void timer_beat(timer_root_t *root, time_t now)
+void timer_beat(timer_root_t *root, long long now)
 {
     if(root == NULL) return;
 
@@ -109,17 +109,15 @@ void timer_beat(timer_root_t *root, time_t now)
     for(rbnode = rb_first(&root->rbroot); rbnode != NULL; rbnode = rb_next(rbnode))
     {
         pos = rb_entry(rbnode, timer_node_t, rbnode);
-        if(pos->expire > now)               //升序排列
+        if(now < pos->expire)               //升序排列
         {
         #ifdef _DEBUG
-            fprintf(stdout, "now - %ld: %s", now, ctime(&now));
+            fprintf(stdout, "sum - %d\n", root->sum);
+            fprintf(stdout, "now - %lld\n", now);
+            fprintf(stdout, "expire - %lld\n", pos->expire);
         #endif
             break;
         }
-
-    #ifdef _DEBUG
-        fprintf(stdout, "expire - %ld: %s", pos->expire, ctime(&pos->expire));
-    #endif
         pos->cb(pos->data);                 //执行回调
     }
 }
@@ -134,7 +132,7 @@ void timer_dump(timer_root_t *root)
     {
         pos = rb_entry(rbnode, timer_node_t, rbnode);
     #ifdef _DEBUG
-        fprintf(stdout, "expire - %ld: %s", pos->expire, ctime(&pos->expire));
+        fprintf(stdout, "expire - %lld\n", pos->expire);
     #endif
     }
 }
@@ -149,7 +147,7 @@ void timer_exit(timer_root_t *root)
     {
         pos = rb_entry(rbnode, timer_node_t, rbnode);
     #ifdef _DEBUG
-        fprintf(stdout, "expire - %ld: %s", pos->expire, ctime(&pos->expire));
+        fprintf(stdout, "expire - %lld\n", pos->expire);
     #endif
         timer_remove(root, pos);
     }
